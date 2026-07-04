@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eymen Dice - 8 Renkli Zar Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #252542);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 5px 15px rgba(255, 65, 108, 0.3);
+        }
+
+        header p {
+            color: #a0a0ba;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Ana Düzenleme */
+        .main-layout {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1400px;
+            flex-wrap: wrap;
+        }
+
+        /* Yan Paneller */
+        .side-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            min-width: 220px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .side-panel h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+            color: #ff4b2b;
+            letter-spacing: 1px;
+        }
+
+        /* Sol Taraf: Kurallar */
+        .rules-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rules-list li {
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #11998e;
+        }
+
+        /* Sağ Taraf: Detaylı Renk Tablosu */
+        .color-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        .color-table th, .color-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .color-table th {
+            color: #a0a0ba;
+            font-weight: 600;
+        }
+
+        .color-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Orta Alan: zarlar */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            flex: 1;
+            max-width: 750px;
+        }
+
+        .dice-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .dice-area {
+            perspective: 1000px;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transform: rotateX(0deg) rotateY(0deg);
+            transition: transform 0.8s cubic-bezier(0.2, 0.85, 0.32, 1.2);
+        }
+
+        /* Zar Yüzleri */
+        .face {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            backface-visibility: hidden;
+        }
+
+        /* Sabit ve Şaşmaz Zar Yüzeyleri */
+        .f-front  { transform: rotateY(0deg) translateZ(65px); background: #e74c3c; color: #fff; }
+        .f-back   { transform: rotateY(180deg) translateZ(65px); background: #3498db; color: #fff; }
+        .f-left   { transform: rotateY(-90deg) translateZ(65px); background: #2ecc71; color: #fff; }
+        .f-right  { transform: rotateY(90deg) translateZ(65px); background: #f1c40f; color: #000; }
+        .f-top    { transform: rotateX(90deg) translateZ(65px); background: #9b59b6; color: #fff; }
+        .f-bottom { transform: rotateX(-90deg) translateZ(65px); background: #e67e22; color: #000; }
+
+        /* Buton */
+        .btn-roll {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            border: none;
+            color: white;
+            padding: 15px 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-roll:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6);
+        }
+
+        /* TEMA SEÇİCİ PANEL */
+        .theme-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 25px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .theme-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #a0a0ba;
+            letter-spacing: 0.5px;
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn:hover { transform: scale(1.2); }
+        .theme-btn.active {
+            border-color: #ffffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .theme-default { background: linear-gradient(135deg, #1e1e2f, #252542); }
+        .theme-cyber { background: linear-gradient(135deg, #05050a, #1a0033, #001122); }
+        .theme-dark { background: linear-gradient(135deg, #0f0f14, #1c1c24); }
+        .theme-emerald { background: linear-gradient(135deg, #0a1f1d, #0d2e27); }
+
+        /* CYBERPUNK AKILLI NEON GLOW EFEKTLERİ */
+        body.cyber-mode .side-panel {
+            border-color: #ff007f;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
+        }
+        body.cyber-mode .theme-panel {
+            border-color: #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+        body.cyber-mode .btn-roll {
+            background: linear-gradient(45deg, #ff007f, #00f0ff);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+            text-shadow: 0 0 5px #fff;
+        }
+
+        /* Sonuç Paneli */
+        .result-box {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 40px;
+        }
+
+        .result-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .result-badge.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>EYMEN DICE</h1>
+        <p>4 Zar Birden! 8 Farklı Renk Kombinasyonunu Yakala.</p>
+    </header>
+
+    <div class="main-layout">
+        
+        <div class="side-panel">
+            <h3>KURALLAR</h3>
+            <ul class="rules-list">
+                <li>1 = W</li>
+                <li>2 = L</li>
+                <li>3 = REROLL</li>
+                <li>4 = REROLL</li>
+            </ul>
+        </div>
+
+        <div class="game-container">
+            <div class="dice-wrapper">
+                <div class="dice-area"><div class="dice" id="dice-0"><div class="face f-front">Kırmızı</div><div class="face f-back">Mavi</div><div class="face f-left">Yeşil</div><div class="face f-right">Sarı</div><div class="face f-top">Mor</div><div class="face f-bottom">Turuncu</div></div></div>
+                <div class="dice-area"><div class="dice" id="dice-1"><div class="face f-front">Kırmızı</div><div class="face f-back">Mavi</div><div class="face f-left">Yeşil</div><div class="face f-right">Sarı</div><div class="face f-top">Mor</div><div class="face f-bottom">Turuncu</div></div></div>
+                <div class="dice-area"><div class="dice" id="dice-2"><div class="face f-front">Kırmızı</div><div class="face f-back">Mavi</div><div class="face f-left">Yeşil</div><div class="face f-right">Sarı</div><div class="face f-top">Mor</div><div class="face f-bottom">Turuncu</div></div></div>
+                <div class="dice-area"><div class="dice" id="dice-3"><div class="face f-front">Kırmızı</div><div class="face f-back">Mavi</div><div class="face f-left">Yeşil</div><div class="face f-right">Sarı</div><div class="face f-top">Mor</div><div class="face f-bottom">Turuncu</div></div></div>
+            </div>
+
+            <button class="btn-roll" id="rollBtn">ZARLARI AT</button>
+
+            <div class="theme-panel">
+                <span class="theme-label">TEMA:</span>
+                <div class="theme-options">
+                    <button class="theme-btn theme-default active" data-theme="default" title="Orijinal Tema"></button>
+                    <button class="theme-btn theme-cyber" data-theme="cyber" title="Cyberpunk Neon"></button>
+                    <button class="theme-btn theme-dark" data-theme="dark" title="Gece Yarısı Siyahı"></button>
+                    <button class="theme-btn theme-emerald" data-theme="emerald" title="Zümrüt Yeşili"></button>
+                </div>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-badge" id="badge-0"></div>
+                <div class="result-badge" id="badge-1"></div>
+                <div class="result-badge" id="badge-2"></div>
+                <div class="result-badge" id="badge-3"></div>
+            </div>
+        </div>
+
+        <div class="side-panel" style="min-width: 280px;">
+            <h3>RENK TABLOSU</h3>
+            <table class="color-table">
+                <thead><tr><th>Renk</th><th>HEX Kodu</th></tr></thead>
+                <tbody>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #e74c3c;"></div> Kırmızı</div></td><td>#E74C3C</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #3498db;"></div> Mavi</div></td><td>#3498DB</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #2ecc71;"></div> Yeşil</div></td><td>#2ECC71</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #f1c40f;"></div> Sarı</div></td><td>#F1C40F</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #9b59b6;"></div> Mor</div></td><td>#9B59B6</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #e67e22;"></div> Turuncu</div></td><td>#E67E22</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #ff69b4;"></div> Pembe</div></td><td>#FF69B4</td></tr>
+                    <tr><td><div class="color-preview"><div class="color-box" style="background: #111111;"></div> Siyah</div></td><td>#111111</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const rollBtn = document.getElementById('rollBtn');
+        const diceElements = [document.getElementById('dice-0'), document.getElementById('dice-1'), document.getElementById('dice-2'), document.getElementById('dice-3')];
+        const badges = [document.getElementById('badge-0'), document.getElementById('badge-1'), document.getElementById('badge-2'), document.getElementById('badge-3')];
+
+        // 8 Farklı renk için zar yüz bilgileri ve dönüş koordinatları güncellendi
+        const diceFaces = [
+            { name: 'Kırmızı', color: '#e74c3c', text: '#ffffff', transform: 'rotateX(360deg) rotateY(360deg)' },
+            { name: 'Mavi', color: '#3498db', text: '#ffffff', transform: 'rotateX(360deg) rotateY(540deg)' },
+            { name: 'Yeşil', color: '#2ecc71', text: '#ffffff', transform: 'rotateX(360deg) rotateY(450deg)' },
+            { name: 'Sarı', color: '#f1c40f', text: '#000000', transform: 'rotateX(360deg) rotateY(270deg)' },
+            { name: 'Mor', color: '#9b59b6', text: '#ffffff', transform: 'rotateX(270deg) rotateY(360deg)' },
+            { name: 'Turuncu', color: '#e67e22', text: '#000000', transform: 'rotateX(450deg) rotateY(360deg)' },
+            { name: 'Pembe', color: '#ff69b4', text: '#ffffff', transform: 'rotateX(360deg) rotateY(720deg)' },
+            { name: 'Siyah', color: '#111111', text: '#ffffff', transform: 'rotateX(540deg) rotateY(540deg)' }
+        ];
+
+        let isRolling = false;
+
+        function rollAllDice() {
+            if (isRolling) return;
+            isRolling = true;
+            rollBtn.disabled = true;
+            
+            badges.forEach(badge => badge.classList.remove('show'));
+            
+            diceElements.forEach((dice) => {
+                const randX = Math.floor(Math.random() * 3 + 2) * 360;
+                const randY = Math.floor(Math.random() * 3 + 2) * 360;
+                dice.style.transition = 'transform 0.4s cubic-bezier(0.5, 0, 0.5, 1)';
+                dice.style.transform = `rotateX(${randX}deg) rotateY(${randY}deg)`;
+            });
+
+            setTimeout(() => {
+                diceElements.forEach((dice, index) => {
+                    // Artık 8 renkten biri gelebiliyor (0-7 arası)
+                    const winningFaceIndex = Math.floor(Math.random() * 8);
+                    const pickedFace = diceFaces[winningFaceIndex];
+
+                    // Zarın ön yüzünü dinamik olarak gelen renge boyuyoruz (3D uyumu için)
+                    const frontFace = dice.querySelector('.f-front');
+                    if (frontFace) {
+                        frontFace.textContent = pickedFace.name;
+                        frontFace.style.background = pickedFace.color;
+                        frontFace.style.color = pickedFace.text;
+                    }
+
+                    dice.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.1)';
+                    // Pembe veya Siyah gelirse küpü ön yüz (f-front) konumuna getiriyoruz
+                    if (winningFaceIndex === 6 || winningFaceIndex === 7) {
+                        dice.style.transform = 'rotateX(360deg) rotateY(360deg)';
+                    } else {
+                        dice.style.transform = pickedFace.transform;
+                    }
+
+                    badges[index].textContent = `${index + 1}. Zar: ${pickedFace.name}`;
+                    badges[index].style.color = pickedFace.text;
+                    badges[index].style.backgroundColor = pickedFace.color;
+                });
+
+                setTimeout(() => {
+                    badges.forEach(badge => badge.classList.add('show'));
+                    isRolling = false;
+                    rollBtn.disabled = false;
+                }, 600);
+
+            }, 400);
+        }
+
+        rollBtn.addEventListener('click', rollAllDice);
+        diceElements.forEach(dice => dice.addEventListener('click', rollAllDice));
+
+        // Tema Yönetimi
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const themeStyles = {
+            default: "linear-gradient(135deg, #1e1e2f, #252542)",
+            cyber: "linear-gradient(135deg, #05050a, #1a0033, #001122)",
+            dark: "linear-gradient(135deg, #0f0f14, #1c1c24)",
+            emerald: "linear-gradient(135deg, #0a1f1d, #0d2e27)"
+        };
+
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                themeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const themeName = btn.getAttribute('data-theme');
+                document.body.style.background = themeStyles[themeName];
+
+                if (themeName === 'cyber') {
+                    document.body.classList.add('cyber-mode');
+                } else {
+                    document.body.classList.remove('cyber-mode');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
