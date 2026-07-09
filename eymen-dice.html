@@ -3,469 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eymen Color Dice</title>
+    <title>EYMEN DICE</title>
     <style>
-        /* Genel Tasarım ve Kalın Font */
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            user-select: none;
         }
 
         body {
-            /* Noktalı açık mavi arka plan deseni */
-            background-color: #34b3f1;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.4) 15%, transparent 16%),
-                              radial-gradient(rgba(255, 255, 255, 0.4) 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
-            
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            overflow-x: hidden;
-        }
-
-        /* Üst Sağ Küçük Bilgi Butonları */
-        .top-bar {
-            position: absolute;
-            top: 15px;
-            right: 20px;
+            background-color: #5bb3ff;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.4) 15%, transparent 16%);
+            background-size: 30px 30px;
+            font-family: 'Arial Black', Gadget, sans-serif;
             display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-        .top-badge {
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-family: Arial, sans-serif;
-            font-weight: bold;
+            min-height: 100vh;
+            transition: background 0.5s ease;
         }
 
-        /* Ana İki Panelli Düzen */
-        .main-container {
+        /* Mega Roll Aktifleştiğinde Arka Plan */
+        body.mega-mode {
+            background-color: #110b29;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 15%, transparent 16%);
+        }
+
+        /* Ana Düzen Alanı */
+        .main-layout {
             display: flex;
             gap: 25px;
+            width: 100%;
             max-width: 1050px;
-            width: 100%;
-            align-items: stretch;
-            justify-content: center;
         }
 
-        /* Sol Ana Oyun Kutusu (Şeffaf Beyaz, Kalın Beyaz Kenarlıklı) */
-        .game-panel {
-            flex: 1.8;
-            background: rgba(255, 255, 255, 0.25);
-            border: 4px solid #ffffff;
-            border-radius: 30px;
-            padding: 35px 30px;
+        /* Sol Oyun Paneli */
+        .game-container {
+            background: #a9dbff;
+            border: 5px solid #fff;
+            border-radius: 35px;
+            padding: 30px;
+            flex: 2;
             text-align: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 0px rgba(0,0,0,0.15);
         }
 
-        /* Sağ Renk Listesi Kutusu (Koyu Mavi Şeffaf) */
-        .side-panel {
+        /* Sağ Renk Listesi Paneli */
+        .colors-sidebar {
+            background: #3e88c7;
+            border-radius: 35px;
+            padding: 25px;
             flex: 1;
-            max-width: 290px;
-            background: rgba(43, 108, 156, 0.75);
-            border-radius: 30px;
-            padding: 30px 20px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        /* Başlık Alanı - İsmi EYMEN yapıldı */
-        h1 {
-            color: white;
-            font-size: 2.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            text-shadow: 0px 4px 0px rgba(0, 0, 0, 0.15);
-            margin-bottom: 2px;
-        }
-
-        .subtitle {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.85rem;
-            letter-spacing: 2.5px;
-            margin-bottom: 25px;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        /* Seçim Menüleri */
-        .selectors {
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 0px rgba(0,0,0,0.15);
         }
 
-        select {
-            background: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border-radius: 12px;
-            font-weight: 900;
-            color: #2b6c9c;
-            width: 46%;
-            box-shadow: 0 5px 0px #b5c7d3;
-            outline: none;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        /* Küp Zarlar */
-        .dice-area {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            min-height: 115px;
-            align-items: center;
-        }
-
-        .dice {
-            width: 95px;
-            height: 95px;
-            border-radius: 20px;
-            border: 4px solid white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease;
-        }
-
-        /* Zarların Derinlik Gölgeleri */
-        .dice-red { background: #ff3344; box-shadow: 0 8px 0px #cc1122; }
-        .dice-orange { background: #ff7f00; box-shadow: 0 8px 0px #cc5f00; }
-        .dice-yellow { background: #ffcc29; box-shadow: 0 8px 0px #cc9900; }
-        .dice-green { background: #2ed573; box-shadow: 0 8px 0px #1e9e52; }
-        .dice-blue { background: #3b82f6; box-shadow: 0 8px 0px #1d4ed8; }
-        .dice-purple { background: #a855f7; box-shadow: 0 8px 0px #7e22ce; }
-
-        /* Zar Ortasındaki Beyaz Nokta */
-        .dice::after {
-            content: '';
-            width: 14px;
-            height: 14px;
-            background-color: white;
-            border-radius: 50%;
-            display: block;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
-        }
-
-        /* NORMAL ROLL ANIMASYONU (Klasik Zıplama) */
-        .dice.rolling {
-            animation: jump 0.3s infinite alternate ease-in-out;
-        }
-
-        @keyframes jump {
-            from { transform: translateY(0); }
-            to { transform: translateY(-20px); }
-        }
-
-        /* MEGA ROLL ANIMASYONU (Çok Hızlı Çılgın Zıplama) */
-        .dice.mega-rolling {
-            animation: megaJump 0.15s infinite alternate ease-in-out;
-        }
-
-        @keyframes megaJump {
-            from { transform: translateY(0) scale(1); }
-            to { transform: translateY(-30px) scale(1.05); }
-        }
-
-        /* Bilgi Yazıları */
-        .info-text {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 0.75rem;
-            letter-spacing: 1.5px;
-            margin-bottom: 30px;
-            line-height: 1.8;
-        }
-
-        /* 3D Butonlar */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.3rem;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.05s ease;
-        }
-
-        .btn:active {
-            transform: translateY(4px);
-        }
-
-        .btn-yellow {
-            background: #ffcc29;
-            color: #7a5500;
-            box-shadow: 0 6px 0px #cc9900;
-        }
-        .btn-yellow:active { box-shadow: 0 2px 0px #cc9900; }
-
-        .btn-pink {
-            background: #ff00cc;
-            color: white;
-            box-shadow: 0 6px 0px #b3008e;
-        }
-        .btn-pink:active { box-shadow: 0 2px 0px #b3008e; }
-
-        .btn-green {
-            background: #2ed573;
-            color: #11572e;
-            box-shadow: 0 6px 0px #229952;
-        }
-        .btn-green:active { box-shadow: 0 2px 0px #229952; }
-
-        /* Olası Renkler Kutusu */
-        .possible-colors {
-            background: rgba(255, 255, 255, 0.35);
-            border-radius: 12px;
-            padding: 10px;
-            font-size: 0.75rem;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        /* SAĞ PANEL */
-        .side-panel h2 {
-            color: #aed1ec;
-            text-align: center;
-            font-size: 1.2rem;
+        .sidebar-title {
+            color: #fff;
+            font-size: 1.5rem;
             letter-spacing: 2px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         .color-row {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            background: rgba(0, 0, 0, 0.12);
-            padding: 12px 15px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
+            gap: 15px;
         }
 
         .color-box {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            margin-right: 15px;
-            border: 2px solid white;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: 2px solid #fff;
         }
 
         .color-info {
             display: flex;
             flex-direction: column;
             text-align: left;
+            font-size: 0.9rem;
         }
 
-        .color-name {
-            color: white;
-            font-size: 1rem;
+        .color-name { color: #fff; font-weight: bold; }
+        .color-desc { color: #d0e5ff; font-family: sans-serif; font-size: 0.75rem; margin-top: 2px;}
+
+        /* Üst Seçenek Seçiciler */
+        .selectors {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
         }
 
-        .color-desc {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.75rem;
-            font-family: Arial, sans-serif;
+        .selector-select {
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 14px;
+            color: #2b618f;
+            font-size: 1.1rem;
+            flex: 1;
+            max-width: 200px;
+            border: 3px solid #3e88c7;
             font-weight: bold;
-            margin-top: 2px;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            cursor: pointer;
+            outline: none;
+            text-align: center;
+            appearance: none; /* Tarayıcıların kendi ok işaretlerini kaldırır, bug önler */
+            -webkit-appearance: none;
+            -moz-appearance: none;
         }
 
-        .c-red { background: #ff3344; }
-        .c-orange { background: #ff7f00; }
-        .c-yellow { background: #ffcc29; }
-        .c-green { background: #2ed573; }
-        .c-blue { background: #3b82f6; }
-        .c-purple { background: #a855f7; }
+        h1 {
+            font-size: 3.2rem;
+            color: #fff;
+            margin: 5px 0;
+            letter-spacing: 3px;
+            text-shadow: 0 5px 0px rgba(0,0,0,0.15);
+        }
 
-        @media (max-width: 768px) {
-            .main-container { flex-direction: column; align-items: center; }
-            .side-panel { max-width: 100%; width: 100%; }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #fff;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        /* Esnek Zar Bölümü (Zarlar arttıkça sığması için güncellendi) */
+        .dice-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 35px 0;
+            min-height: 125px;
+        }
+
+        .dice {
+            width: 95px;
+            height: 95px;
+            border-radius: 22px;
+            border: 5px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .dice-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        /* Sosyal Medya Metni */
+        .info-text {
+            color: #fff;
+            font-size: 0.8rem;
+            margin: 25px 0;
+            letter-spacing: 1.5px;
+            line-height: 1.6;
+        }
+
+        /* Butonlar */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 18px;
+            margin: 14px 0;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.15);
+            font-family: 'Arial Black', Gadget, sans-serif;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.15);
+        }
+
+        .btn-normal { background: #ffb703; color: #4a3200; }
+        .btn-mega { background: #ff00b7; color: #fff; }
+        .btn-scratch { background: #2ec4b6; color: #fff; }
+
+        /* --- ANIMASYONLAR --- */
+        .roll-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, -1px) rotate(3deg); }
+            40% { transform: translate(1px, -1px) rotate(-2deg); }
+            60% { transform: translate(-2px, 2px) rotate(0deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        .mega-reveal {
+            animation: megaPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes megaPop {
+            0% { opacity: 0; transform: scale(0.1) rotate(-180deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Tam Ekran Geçiş Katmanı */
+        .mega-title-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #090514;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mega-title-screen.active {
+            display: flex;
+        }
+
+        .mega-text {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #ff00b7;
+            letter-spacing: 5px;
+            text-shadow: 0 0 25px rgba(255, 0, 183, 0.7);
+        }
+
+        .possible-colors {
+            font-size: 0.8rem;
+            color: #fff;
+            margin-top: 20px;
+            font-family: sans-serif;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="top-badge">🔘 Sound</div>
-        <div class="top-badge">🎨 Blue</div>
-        <div class="top-badge">👤 Player</div>
+    <!-- Mega Roll Geçiş Ekranı -->
+    <div class="mega-title-screen" id="megaScreen">
+        <div class="mega-text">⚡ MEGA ROLL ⚡</div>
+        <div style="color: #a9dbff; margin-top: 15px; letter-spacing: 2px; font-size: 1.2rem;">ULTIMATE LUCK</div>
     </div>
 
-    <div class="main-container">
-
-        <!-- SOL OYUN ALANI -->
-        <div class="game-panel">
-            <!-- Sitenin İsmi EYMEN yapıldı -->
+    <!-- ANA DÜZEN KATMANI -->
+    <div class="main-layout">
+        <!-- SOL PANEL -->
+        <div class="game-container">
             <h1>EYMEN DICE</h1>
             <div class="subtitle">MADE BY EYMEN</div>
 
             <div class="selectors">
-                <select id="diceCount" onchange="changeDiceCount()">
-                    <option value="2">2 Dice</option>
-                    <option value="3" selected>3 Dice</option>
-                    <option value="4">4 Dice</option>
+                <!-- Zar Seçenekleri -->
+                <select class="selector-select" id="diceCountSelect" onchange="updateDiceCount()">
+                    <option value="1">1 DICE</option>
+                    <option value="2">2 DICE</option>
+                    <option value="3" selected>3 DICE</option>
+                    <option value="4">4 DICE</option>
+                    <option value="5">5 DICE</option>
+                    <option value="6">6 DICE</option>
                 </select>
-                <select>
-                    <option>Color Dice</option>
+                <select class="selector-select">
+                    <option>COLOR DICE</option>
                 </select>
             </div>
 
-            <div id="diceContainer" class="dice-area">
-                <div class="dice dice-red"></div>
-                <div class="dice dice-red"></div>
-                <div class="dice dice-green"></div>
-            </div>
+            <!-- Dinamik Zarlar -->
+            <div class="dice-area" id="diceArea"></div>
 
             <div class="info-text">
                 + EYMEN COLOR DICE +<br>
                 FOLLOW AUTOR TIK TOK "sab_trader7424"
             </div>
 
-            <button class="btn btn-yellow" onclick="rollAll(false)">ROLL AGAIN !</button>
-            <button class="btn btn-pink" onclick="rollAll(true)">⚡ MEGA ROLL ⚡</button>
-            <button class="btn btn-green">🪙 SCRATCH CARD</button>
+            <!-- Butonlar -->
+            <button class="btn btn-normal" onclick="triggerNormalRoll()">ROLL AGAIN !</button>
+            <button class="btn btn-mega" onclick="triggerMegaRoll()">⚡ MEGA ROLL ⚡</button>
+            <button class="btn btn-scratch">🎟️ SCRATCH CARD</button>
 
             <div class="possible-colors">
-                Possible colors are: <span style="color:#ff3344">Red</span>, <span style="color:#ff7f00">Orange</span>, <span style="color:#ffcc29">Yellow</span>, <span style="color:#2ed573">Green</span>, <span style="color:#3b82f6">Blue</span>, and <span style="color:#a855f7">Purple</span>.
+                Possible colors are: <span style="color:#ff0055">Red</span>, <span style="color:#ff7300">Orange</span>, <span style="color:#ffb703">Yellow</span>, <span style="color:#00ff66">Green</span>, <span style="color:#0077ff">Blue</span>, and <span style="color:#7f00ff">Purple</span>.
             </div>
         </div>
 
         <!-- SAĞ PANEL -->
-        <div class="side-panel">
-            <h2>COLORS</h2>
-
+        <div class="colors-sidebar">
+            <div class="sidebar-title">COLORS</div>
+            
             <div class="color-row">
-                <div class="color-box c-red"></div>
-                <div class="color-info">
-                    <span class="color-name">Red</span>
-                    <span class="color-desc">❌ Fail Trade</span>
-                </div>
+                <div class="color-box" style="background: #ff0055;"></div>
+                <div class="color-info"><span class="color-name">Red</span><span class="color-desc">❌ Fail Trade</span></div>
             </div>
-
             <div class="color-row">
-                <div class="color-box c-orange"></div>
-                <div class="color-info">
-                    <span class="color-name">Orange</span>
-                    <span class="color-desc">🤷 No Thanks</span>
-                </div>
+                <div class="color-box" style="background: #ff7300;"></div>
+                <div class="color-info"><span class="color-name">Orange</span><span class="color-desc">👍 No Thanks</span></div>
             </div>
-
             <div class="color-row">
-                <div class="color-box c-yellow"></div>
-                <div class="color-info">
-                    <span class="color-name">Yellow</span>
-                    <span class="color-desc">🤝 Deal?</span>
-                </div>
+                <div class="color-box" style="background: #ffb703;"></div>
+                <div class="color-info"><span class="color-name">Yellow</span><span class="color-desc">🤝 Deal?</span></div>
             </div>
-
             <div class="color-row">
-                <div class="color-box c-green"></div>
-                <div class="color-info">
-                    <span class="color-name">Green</span>
-                    <span class="color-desc">✅ Fair Trade</span>
-                </div>
+                <div class="color-box" style="background: #00ff66;"></div>
+                <div class="color-info"><span class="color-name">Green</span><span class="color-desc">✅ Fair Trade</span></div>
             </div>
-
             <div class="color-row">
-                <div class="color-box c-blue"></div>
-                <div class="color-info">
-                    <span class="color-name">Blue</span>
-                    <span class="color-desc">📄 Last Offer</span>
-                </div>
+                <div class="color-box" style="background: #0077ff;"></div>
+                <div class="color-info"><span class="color-name">Blue</span><span class="color-desc">📄 Last Offer</span></div>
             </div>
-
             <div class="color-row">
-                <div class="color-box c-purple"></div>
-                <div class="color-info">
-                    <span class="color-name">Purple</span>
-                    <span class="color-desc">➕ Add More</span>
-                </div>
+                <div class="color-box" style="background: #7f00ff;"></div>
+                <div class="color-info"><span class="color-name">Purple</span><span class="color-desc">➕ Add More</span></div>
             </div>
         </div>
-
     </div>
 
     <script>
-        const diceTypes = ['dice-red', 'dice-orange', 'dice-yellow', 'dice-green', 'dice-blue', 'dice-purple'];
-        let intervalId = null;
+        const colors = ['#ff0055', '#ff7300', '#ffb703', '#00ff66', '#0077ff', '#7f00ff'];
+        const diceArea = document.getElementById('diceArea');
+        const megaScreen = document.getElementById('megaScreen');
+        const diceCountSelect = document.getElementById('diceCountSelect');
+        const body = document.body;
 
-        function changeDiceCount() {
-            const count = document.getElementById('diceCount').value;
-            const container = document.getElementById('diceContainer');
-            container.innerHTML = '';
+        // Seçilen sayıya göre zarları baştan oluşturan fonksiyon
+        function updateDiceCount() {
+            const count = parseInt(diceCountSelect.value);
+            diceArea.innerHTML = ''; 
             
-            for(let i = 0; i < count; i++) {
-                const dice = document.createElement('div');
-                const randomType = diceTypes[Math.floor(Math.random() * diceTypes.length)];
-                dice.className = 'dice ' + randomType;
-                container.appendChild(dice);
-            }
-        }
-
-        function rollAll(isMega) {
-            const dices = document.querySelectorAll('.dice');
-            
-            if (isMega) {
-                // MEGA ROLL: Zarlar çok hızlı zıplar ve dönerken disko gibi sürekli renk değiştirir!
-                dices.forEach(dice => dice.classList.add('mega-rolling'));
+            for(let i=0; i<count; i++) {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // Renklerin çılgınca değiştiği disko efekti intervalı
-                intervalId = setInterval(() => {
-                    dices.forEach(dice => {
-                        diceTypes.forEach(t => dice.classList.remove(t));
-                        const randomType = diceTypes[Math.floor(Math.random() * diceTypes.length)];
-                        dice.classList.add(randomType);
-                    });
-                }, 60); // 60ms'de bir renk değişimi (aşırı hızlı)
-
-            } else {
-                // NORMAL ROLL: Klasik zıplama efekti
-                dices.forEach(dice => dice.classList.add('rolling'));
+                const diceDiv = document.createElement('div');
+                diceDiv.className = 'dice';
+                diceDiv.style.backgroundColor = randomColor;
+                
+                const dotDiv = document.createElement('div');
+                dotDiv.className = 'dice-dot';
+                
+                diceDiv.appendChild(dotDiv);
+                diceArea.appendChild(diceDiv);
             }
-
-            // Atışın Durma Süresi (Orijinal sitedeki gibi yarım saniye civarı sürer)
-            setTimeout(() => {
-                if (isMega && intervalId) {
-                    clearInterval(intervalId);
-                }
-
-                dices.forEach(dice => {
-                    dice.classList.remove('rolling');
-                    dice.classList.remove('mega-rolling');
-                    
-                    // Önceki sınıfları temizle ve son neticeyi ata
-                    diceTypes.forEach(t => dice.classList.remove(t));
-                    const finalType = diceTypes[Math.floor(Math.random() * diceTypes.length)];
-                    dice.classList.add(finalType);
-                });
-            }, isMega ? 1200 : 600); // Mega roll biraz daha uzun ve havalı sürer
         }
+
+        // 1. Normal Roll Fonksiyonu
+        function triggerNormalRoll() {
+            body.classList.remove('mega-mode');
+            const dices = diceArea.querySelectorAll('.dice');
+            
+            dices.forEach(dice => {
+                dice.style.opacity = "1";
+                dice.className = 'dice'; 
+                void dice.offsetWidth; 
+                
+                dice.classList.add('roll-animation');
+                
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                dice.style.backgroundColor = randomColor;
+                dice.style.boxShadow = `0 8px 0px rgba(0,0,0,0.15)`;
+            });
+        }
+
+        // 2. Sıralı Mega Roll Fonksiyonu
+        function triggerMegaRoll() {
+            megaScreen.classList.add('active');
+            
+            setTimeout(() => {
+                megaScreen.classList.remove('active');
+                body.classList.add('mega-mode');
+                
+                const dices = diceArea.querySelectorAll('.dice');
+                
+                dices.forEach((dice, index) => {
+                    dice.className = 'dice';
+                    dice.style.opacity = '0';
+                    void dice.offsetWidth;
+                    
+                    setTimeout(() => {
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        dice.style.backgroundColor = randomColor;
+                        
+                        dice.classList.add('mega-reveal');
+                        dice.style.boxShadow = `0 0 25px ${randomColor}, 0 0 45px ${randomColor}`;
+                    }, index * 250); 
+                });
+            }, 1000);
+        }
+
+        // İlk yükleme
+        updateDiceCount();
     </script>
 </body>
 </html>
